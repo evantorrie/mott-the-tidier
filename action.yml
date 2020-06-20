@@ -1,13 +1,17 @@
-name: 'Wait'
-description: 'Wait a designated number of milliseconds'
+name: go-mod-tidier
+description: 'Run go mod tidy on one or more go.mod files'
 inputs:
-  milliseconds:  # id of input
-    description: 'number of milliseconds to wait'
+  files:  # id of input
+    description: 'go.mod files to run go mod tidy. Can be glob patterns one per line'
     required: true
-    default: '1000'
+    default: go.mod
+  gosum_only:
+    description: 'fail if any files other than go.sum files are modified during tidy'
+    required: false
+    default: false
 outputs:
-  time: # output will be available to future steps 
-    description: 'The message to output'
+  changedfiles: # id of output
+    description: 'List of files that were changed'
 runs:
   using: 'node12'
-  main: 'dist/index.js'
+  main: 'index.js'
