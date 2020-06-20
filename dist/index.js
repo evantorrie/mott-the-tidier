@@ -1895,9 +1895,8 @@ function regExpEscape (s) {
 
 const core = __webpack_require__(470);
 const exec = __webpack_require__(986);
-const glob = __webpack_require__(281);
-const path = __webpack_require__(622);
 const process = __webpack_require__(765);
+const utils = __webpack_require__(278);
 
 async function run() {
     try {
@@ -1910,7 +1909,7 @@ async function run() {
               .split("\n")
               .map(s => s.trim())
               .filter(s => s !== "");
-        let dirs = await findDirectories(filePatterns);
+        let dirs = await utils.findDirectories(filePatterns);
         await gomodTidy(dirs);
         let diffs = await checkGoSumOnly();
         core.startGroup('Files changed');
@@ -1965,19 +1964,44 @@ async function checkGoSumOnly() {
     return diffs;
 }
 
+
+/***/ }),
+
+/***/ 129:
+/***/ (function(module) {
+
+module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 278:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+const glob = __webpack_require__(281);
+const path = __webpack_require__(622);
+
+const hasIterationProtocol = variable =>
+      variable !== null && Symbol.iterator in Object(variable);
+
+/**
+ * @param patterns An Iterable container of globbale patterns
+ * @returns {array} array of paths matching the globs
+ */
 async function findDirectories(patterns) {
     let dirs = new Set();
-    for (const p of patterns) {
-        let pat = p[0] != '-' ? p : p.substr(1);
-        let matches = new Set();
-        const globber = await glob.create(pat);
-        for await (const f of globber.globGenerator()) {
-            matches.add(path.dirname(f));
-        }
-        if (p[0] == '-') {
-            dirs = difference(dirs, matches);
-        } else {
-            dirs = union(dirs, matches);
+    if (hasIterationProtocol(patterns)) {
+        for (const p of patterns) {
+            let pat = p[0] != '-' ? p : p.substr(1);
+            let matches = new Set();
+            const globber = await glob.create(pat);
+            for await (const f of globber.globGenerator()) {
+                matches.add(path.dirname(f));
+            }
+            if (p[0] == '-') {
+                dirs = difference(dirs, matches);
+            } else {
+                dirs = union(dirs, matches);
+            }
         }
     }
     return [...new Set(dirs)];
@@ -1999,13 +2023,9 @@ function difference(setA, setB) {
     return _difference;
 }
 
+exports.findDirectories = findDirectories;
 
-/***/ }),
 
-/***/ 129:
-/***/ (function(module) {
-
-module.exports = require("child_process");
 
 /***/ }),
 
