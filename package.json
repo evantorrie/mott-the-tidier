@@ -1,7 +1,7 @@
 {
-  "name": "javascript-action",
-  "version": "1.0.0",
-  "description": "JavaScript Action Template",
+  "name": "mod-cleaner",
+  "version": "0.1.0",
+  "description": "Update go.sum files",
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js",
@@ -10,25 +10,27 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/javascript-action.git"
+    "url": "git+https://github.com/evantorrie/mod-cleaner.git"
   },
   "keywords": [
     "GitHub",
-    "Actions",
-    "JavaScript"
+    "Go",
+    "Actions"
   ],
-  "author": "GitHub",
+  "author": "Evan Torrie <evantorrie@users.noreply.github.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/actions/javascript-action/issues"
+    "url": "https://github.com/evantorrie/mod-cleaner/issues"
   },
-  "homepage": "https://github.com/actions/javascript-action#readme",
+  "homepage": "https://github.com/evantorrie/mod-cleaner#readme",
   "dependencies": {
-    "@actions/core": "^1.1.1"
+    "@actions/core": "^1.2.4",
+    "@actions/exec": "^1.0.4",
+    "@actions/glob": "^0.1.0"
   },
   "devDependencies": {
-    "@zeit/ncc": "^0.20.5",
-    "eslint": "^6.3.0",
-    "jest": "^24.9.0"
+    "@zeit/ncc": "^0.22.3",
+    "eslint": "^7.3.0",
+    "jest": "^26.0.1"
   }
 }
