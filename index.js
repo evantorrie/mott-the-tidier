@@ -22,6 +22,9 @@ async function run() {
             console.log(f);
         }
         core.endGroup();
+        core.startGroup('Diffs');
+        await exec.exec('git', ['diff']);
+        core.endGroup();
         const gosum_only = core.getInput('gosum_only').toLowerCase();
         if (gosum_only === 'true' || gosum_only === 'enabled') {
             // count number of files which end in go.sum
