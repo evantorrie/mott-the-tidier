@@ -1,8 +1,7 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
-const glob = require('@actions/glob');
-const path = require('path');
 const process = require('process');
+const utils = require('./utils');
 
 async function run() {
     try {
@@ -15,7 +14,7 @@ async function run() {
               .split("\n")
               .map(s => s.trim())
               .filter(s => s !== "");
-        let dirs = await findDirectories(filePatterns);
+        let dirs = await utils.findDirectories(filePatterns);
         await gomodTidy(dirs);
         let diffs = await checkGoSumOnly();
         core.startGroup('Files changed');
@@ -68,38 +67,4 @@ async function checkGoSumOnly() {
     const diffs = myOutput.split("\n").filter(x => x.trim());
     core.debug(`diffs=${diffs}`);
     return diffs;
-}
-
-async function findDirectories(patterns) {
-    let dirs = new Set();
-    for (const p of patterns) {
-        let pat = p[0] != '-' ? p : p.substr(1);
-        let matches = new Set();
-        const globber = await glob.create(pat);
-        for await (const f of globber.globGenerator()) {
-            matches.add(path.dirname(f));
-        }
-        if (p[0] == '-') {
-            dirs = difference(dirs, matches);
-        } else {
-            dirs = union(dirs, matches);
-        }
-    }
-    return [...new Set(dirs)];
-}
-
-function union(setA, setB) {
-    let _union = new Set(setA);
-    for (let elem of setB) {
-        _union.add(elem);
-    }
-    return _union;
-}
-
-function difference(setA, setB) {
-    let _difference = new Set(setA);
-    for (let elem of setB) {
-        _difference.delete(elem);
-    }
-    return _difference;
 }
