@@ -1,7 +1,7 @@
-name: go-mod-tidier
+name: mod-tidy-action
 description: 'Run go mod tidy on one or more go.mod files'
 inputs:
-  files:  # id of input
+  gomods:  # id of input
     description: 'go.mod files to run go mod tidy. Can be glob patterns one per line'
     required: true
     default: go.mod

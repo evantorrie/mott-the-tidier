@@ -9,9 +9,9 @@ async function run() {
         if (process.env["GITHUB_ACTIONS"]) {
             // console.log("Running inside a github action");
         }
-        // To test this from your dev box, use "env INPUT_FILES='<test_pattern>' node index.js"
+        // To test this from your dev box, use "env INPUT_GOMODS='<test_pattern>' node index.js"
         const filePatterns = core
-              .getInput('files')
+              .getInput('gomods')
               .split("\n")
               .map(s => s.trim())
               .filter(s => s !== "");

@@ -4,7 +4,7 @@ const path = require('path');
 
 // shows how the runner will run a javascript action with env / stdout protocol
 test('test runs', () => {
-    process.env['INPUT_FILES'] = 'go.mod';
+    process.env['INPUT_GOMODS'] = 'go.mod';
     const ip = path.join(__dirname, 'index.js');
     console.log(cp.execSync(`node ${ip}`, { env: process.env }).toString());
 })
