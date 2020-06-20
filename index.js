@@ -18,7 +18,7 @@ async function run() {
         let dirs = await findDirectories(filePatterns);
         await gomodTidy(dirs);
         let diffs = await checkGoSumOnly();
-        core.startGroup('Files with diffs');
+        core.startGroup('Files changed');
         for (const f of diffs) {
             console.log(f);
         }

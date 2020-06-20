@@ -1,17 +1,22 @@
 name: mod-tidy-action
 description: 'Run go mod tidy on one or more go.mod files'
+
+author: Evan Torrie <evantorrie@users.noreply.github.com>
+
 inputs:
-  gomods:  # id of input
+  gomods:
     description: 'go.mod files to run go mod tidy. Can be glob patterns one per line'
     required: true
     default: go.mod
   gosum_only:
-    description: 'fail if any files other than go.sum files are modified during tidy'
+    description: 'fail if files other than go.sum are modified during tidy'
     required: false
     default: false
+
 outputs:
   changedfiles: # id of output
-    description: 'List of files that were changed'
+    description: 'List of files that were changed, one per line'
+
 runs:
   using: 'node12'
   main: 'index.js'
