@@ -98,9 +98,9 @@ project](https://github.com/open-telemetry/opentelemetry-go/
 
 Dependabot is a brilliant tool which will automatically create a pull
 request by modifying `go.mod` and `go.sum` files for outdated
-dependencies in a go module.  Unfortunately, it does only one module
-at a time in each PR. Modules which depend on the module being changed
-by Dependabot are not examined.
+dependencies in a go module.  Unfortunately, it does not look (as of this time)
+at transitive dependencies of the module in question elsewhere in the repo.
+_Admittedly, this is usually rare in most Go projects_.
 
 On the other hand, our build workflow which runs on every PR performs
 `go mod tidy` as one of its actions and will fail the build if any
@@ -108,7 +108,7 @@ files in the repository show as "dirty" in a `git status`. With the
 introduction of Dependabot, we would get many automatic dependency
 update pull requests opened, but nearly all with _Build Failed_
 messages due to these `go mod tidy` resulting in changes to `go.sum` files
-in dependent modules elsewhere in the repository.
+in dependent modules elsewhere.
 
 This action can be run as part of a workflow which targets these
 Dependabot pull requests (or any Github targetable event) and
@@ -116,8 +116,3 @@ generates the *correct* per `go mod tidy` `go.sum` files. A subsequent
 action in the workflow can auto-commit these changes back to the
 PR such that the automatic Dependabot pull requests show up as
 _Successful_ in our CI system.
-
-
-
-
-
