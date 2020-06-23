@@ -39,10 +39,16 @@ installed go on the Workflow runner.
       -tools/go.mod
 
     # enforce action failure if any files modified as a result of the action
+    # are *not* `go.sum` or `go.mod` files
+    # defaults to true
+
+    gomodsum_only: true
+
+    # enforce action failure if any files modified as a result of the action
     # are *not* `go.sum` files
     # defaults to false
 
-    gosum_only: true
+    gosum_only: false
 ```
 
 ### Example
@@ -69,7 +75,6 @@ jobs:
         gomods: |
           **/go.mod
           -tools/go.mod
-        gosum_only: true
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: Auto-fix go.sum discrepancies
@@ -80,13 +85,17 @@ jobs:
 1.  `gomods`
     Defaults to `go.mod`, i.e. top level `go.mod` in repo.
 
-2.  `gosum_only`
+2.  `gomodsum_only`
+    Defaults to `true`
+
+3.  `gosum_only`
     Defaults to `false`
 
 
 ### Outputs
 
-TBD
+1.  `changedfiles`
+    Newline delimited set of git tracked files which changed during the action.
 
 ## Background
 

@@ -17,6 +17,7 @@ async function run() {
         let dirs = await utils.findDirectories(filePatterns);
         await gomodTidy(dirs);
         let diffs = await gitDiffFiles();
+
         core.startGroup('Diff Files');
         for (const f of diffs) {
             console.log(`  ${f}`);
@@ -25,6 +26,7 @@ async function run() {
         core.startGroup('Full diff');
         await exec.exec('git', ['diff']);
         core.endGroup();
+
         const gosum_only = core.getInput('gosum_only').toLowerCase();
         const gomodsum_only = core.getInput('gomodsum_only').toLowerCase();
         let enabled = (s) => { return s === 'true' || s === 'enabled'; };
