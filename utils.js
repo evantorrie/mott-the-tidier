@@ -1,8 +1,34 @@
+const core = require('@actions/core');
 const glob = require('@actions/glob');
 const path = require('path');
 
 const hasIterationProtocol = variable =>
       variable !== null && Symbol.iterator in Object(variable);
+
+/**
+ * @param diffs array of filenames to examine
+ * @param gosum boolean check all files are go.sum only
+ * @param gomodsum boolean check all files are go.mod or go.sum only
+ * @returns {void}
+ * @throws string exeception if diffs do not satisfy constraints
+ */
+function checkModifiedFiles(diffs, gosum_only, gomodsum_only) {
+    if (!(gosum_only || gomodsum_only)) {
+        // then we really don't care about what files were modified
+        return;
+    }
+    // precondition diffs is a container that has a 'filter' operation
+    // \todo add check for full filename rather than suffix, i.e. ohgo.sum)
+    let gosums = diffs.filter(s => s.endsWith('go.sum'));
+    let gomods = diffs.filter(s => s.endsWith('go.mod'));
+    core.debug(`go.sums=${gosums}, go.mods=${gomods}, diffs=${diffs}`);
+    let desired = gosum_only ? gosums.length : (gosums.length + gomods.length);
+    if (diffs.length !== desired) {
+        const fileSpec = gosum_only ? 'go.sum' : 'go.{mod,sum}';
+        const msg = `Files other than ${fileSpec} were changed during \`go mod tidy\`!`;
+        throw new Error(msg);
+    }
+}
 
 /**
  * @param patterns An Iterable container of globbale patterns
@@ -44,5 +70,6 @@ function difference(setA, setB) {
     return _difference;
 }
 
+exports.checkModifiedFiles = checkModifiedFiles;
 exports.findDirectories = findDirectories;
 
