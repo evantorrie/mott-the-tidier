@@ -1911,26 +1911,22 @@ async function run() {
               .filter(s => s !== "");
         let dirs = await utils.findDirectories(filePatterns);
         await gomodTidy(dirs);
-        let diffs = await checkGoSumOnly();
-        core.startGroup('Files changed');
+        let diffs = await gitDiffFiles();
+
+        core.startGroup('Diff Files');
         for (const f of diffs) {
-            console.log(f);
+            console.log(`  ${f}`);
         }
         core.endGroup();
-        core.startGroup('Diffs');
+        core.startGroup('Full diff');
         await exec.exec('git', ['diff']);
         core.endGroup();
+
         const gosum_only = core.getInput('gosum_only').toLowerCase();
-        if (gosum_only === 'true' || gosum_only === 'enabled') {
-            // count number of files which end in go.sum
-            // \todo add check for full filename rather than suffix, i.e. ohgo.sum)
-            let gosums = diffs.filter(s => s.endsWith('go.sum'));
-            core.debug(`go.sums=${gosums}`);
-            if (diffs.length !== gosums.length) {
-                const msg = "Files other than go.sum were changed during go mod tidy!"; 
-                throw new Error(msg);
-            }
-        }
+        const gomodsum_only = core.getInput('gomodsum_only').toLowerCase();
+        let enabled = (s) => { return s === 'true' || s === 'enabled'; };
+        utils.checkModifiedFiles(diffs, enabled(gosum_only), enabled(gomodsum_only));
+        core.setOutput('changedfiles', diffs.join("\n"));
     } catch (error) {
         core.setFailed(error.message);
     }
@@ -1949,7 +1945,7 @@ async function gomodTidy(dirs) {
 
 // Run git status in each directory - to see what files have changed
 // \todo check behaviour with git submodules
-async function checkGoSumOnly() {
+async function gitDiffFiles() {
     core.debug(`git diff --name-only`);
     let myOutput = '';
     const options = {
@@ -1980,11 +1976,37 @@ module.exports = require("child_process");
 /***/ 278:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
+const core = __webpack_require__(470);
 const glob = __webpack_require__(281);
 const path = __webpack_require__(622);
 
 const hasIterationProtocol = variable =>
       variable !== null && Symbol.iterator in Object(variable);
+
+/**
+ * @param diffs array of filenames to examine
+ * @param gosum boolean check all files are go.sum only
+ * @param gomodsum boolean check all files are go.mod or go.sum only
+ * @returns {void}
+ * @throws string exeception if diffs do not satisfy constraints
+ */
+function checkModifiedFiles(diffs, gosum_only, gomodsum_only) {
+    if (!(gosum_only || gomodsum_only)) {
+        // then we really don't care about what files were modified
+        return;
+    }
+    // precondition diffs is a container that has a 'filter' operation
+    // \todo add check for full filename rather than suffix, i.e. ohgo.sum)
+    let gosums = diffs.filter(s => s.endsWith('go.sum'));
+    let gomods = diffs.filter(s => s.endsWith('go.mod'));
+    core.debug(`go.sums=${gosums}, go.mods=${gomods}, diffs=${diffs}`);
+    let desired = gosum_only ? gosums.length : (gosums.length + gomods.length);
+    if (diffs.length !== desired) {
+        const fileSpec = gosum_only ? 'go.sum' : 'go.{mod,sum}';
+        const msg = `Files other than ${fileSpec} were changed during \`go mod tidy\`!`;
+        throw new Error(msg);
+    }
+}
 
 /**
  * @param patterns An Iterable container of globbale patterns
@@ -2026,6 +2048,7 @@ function difference(setA, setB) {
     return _difference;
 }
 
+exports.checkModifiedFiles = checkModifiedFiles;
 exports.findDirectories = findDirectories;
 
 
