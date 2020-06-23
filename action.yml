@@ -12,6 +12,10 @@ inputs:
     description: 'fail if files other than go.sum are modified during tidy'
     required: false
     default: false
+  gomodsum_only:
+    description: 'fail if files other than go.{mod,sum} are modified during tidy'
+    required: false
+    default: false
 
 outputs:
   changedfiles: # id of output
