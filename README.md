@@ -26,7 +26,7 @@ installed go on the Workflow runner.
 
 
 ```yaml
-- uses: evantorrie/mott-the-tider@v1-beta
+- uses: evantorrie/mott-the-tidier@v1-beta
   with:   # all inputs are optional
 
     # file path pattern to go.mod files
